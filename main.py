@@ -1,12 +1,22 @@
 from http.server import SimpleHTTPRequestHandler
 from socketserver import TCPServer
+from PIL import Image, ImageTk
+from tkinter import ttk, filedialog, messagebox
+import tkinter as tk
 import ssl
 import socket
 
 class Main:
     def __init__(self):
-        self.show_welcome() 
+        self.show_welcome()
+        self.icon()
 
+    
+    def icon(self):
+        img = Image.open('C:\\Portfolio\\LinkL\\Li.png')
+        photo = ImageTk.PhotoImage(img)
+        self.iconphoto(True, photo)
+        
     def show_welcome(self):
         print("""
  ___           ___      ________       ___  __        ___              
@@ -46,13 +56,16 @@ class Main:
         httpd.serve_forever()
 
     def option_443(self):
+        server_address = self.get_server_address()  # Prompt for DNS or IP address
         port = 443
         certfile = input("Enter the path to the certificate file: ")
         keyfile = input("Enter the path to the key file: ")
+        custom_directory = self.get_web_directory() # Prompt for the web directory
         handler = SimpleHTTPRequestHandler
-        server_address = ('', port)
-        httpd = linkl(server_address, handler, certfile, keyfile)
-        print(f"Server running on port {port}")
+        httpd = linkl((server_address, port), handler, certfile, keyfile) # Use the server address here
+        httpd.custom_directory = custom_directory
+        httpd.web_root = httpd.RequestHandlerClass.translate_path(httpd, '/')
+        print(f"Server running on https://{server_address}:{port}")
         httpd.serve_forever()
     
     def get_server_address(self):
